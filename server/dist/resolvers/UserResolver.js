@@ -24,6 +24,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
@@ -51,13 +54,16 @@ const constants_1 = require("../constants");
 let RegisterInput = class RegisterInput {
 };
 __decorate([
-    type_graphql_1.Field(() => String)
+    type_graphql_1.Field(() => String),
+    __metadata("design:type", String)
 ], RegisterInput.prototype, "username", void 0);
 __decorate([
-    type_graphql_1.Field(() => String)
+    type_graphql_1.Field(() => String),
+    __metadata("design:type", String)
 ], RegisterInput.prototype, "password", void 0);
 __decorate([
-    type_graphql_1.Field(() => String)
+    type_graphql_1.Field(() => String),
+    __metadata("design:type", String)
 ], RegisterInput.prototype, "email", void 0);
 RegisterInput = __decorate([
     type_graphql_1.InputType()
@@ -65,10 +71,12 @@ RegisterInput = __decorate([
 let FieldError = class FieldError {
 };
 __decorate([
-    type_graphql_1.Field(() => String)
+    type_graphql_1.Field(() => String),
+    __metadata("design:type", String)
 ], FieldError.prototype, "field", void 0);
 __decorate([
-    type_graphql_1.Field(() => String)
+    type_graphql_1.Field(() => String),
+    __metadata("design:type", String)
 ], FieldError.prototype, "message", void 0);
 FieldError = __decorate([
     type_graphql_1.ObjectType()
@@ -76,13 +84,16 @@ FieldError = __decorate([
 let UserResponse = class UserResponse {
 };
 __decorate([
-    type_graphql_1.Field(() => [FieldError], { nullable: true })
+    type_graphql_1.Field(() => [FieldError], { nullable: true }),
+    __metadata("design:type", Array)
 ], UserResponse.prototype, "errors", void 0);
 __decorate([
-    type_graphql_1.Field(() => Boolean, { nullable: true })
+    type_graphql_1.Field(() => Boolean, { nullable: true }),
+    __metadata("design:type", Boolean)
 ], UserResponse.prototype, "ok", void 0);
 __decorate([
-    type_graphql_1.Field(() => User_1.User, { nullable: true })
+    type_graphql_1.Field(() => User_1.User, { nullable: true }),
+    __metadata("design:type", User_1.User)
 ], UserResponse.prototype, "user", void 0);
 UserResponse = __decorate([
     type_graphql_1.ObjectType()
@@ -322,37 +333,58 @@ let UserResolver = class UserResolver {
 };
 __decorate([
     type_graphql_1.Query(() => User_1.User, { nullable: true }),
-    __param(0, type_graphql_1.Ctx())
+    __param(0, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Object)
 ], UserResolver.prototype, "me", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg('newPassword', () => String)),
     __param(1, type_graphql_1.Arg('confNewPassword', () => String)),
     __param(2, type_graphql_1.Arg('token', () => String)),
-    __param(3, type_graphql_1.Ctx())
+    __param(3, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, Object]),
+    __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "changePassword", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg('email', () => String)),
-    __param(1, type_graphql_1.Ctx())
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "forgotPassword", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg('options', () => RegisterInput)),
-    __param(1, type_graphql_1.Ctx())
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [RegisterInput, Object]),
+    __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "register", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg('usernameOrEmail', () => String)),
     __param(1, type_graphql_1.Arg('password', () => String)),
-    __param(2, type_graphql_1.Ctx())
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "login", null);
 __decorate([
-    type_graphql_1.Query(() => [User_1.User])
+    type_graphql_1.Query(() => [User_1.User]),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "users", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean),
-    __param(0, type_graphql_1.Ctx())
+    __param(0, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "logout", null);
 UserResolver = __decorate([
     type_graphql_1.Resolver()

@@ -1,18 +1,22 @@
 import { Field, ObjectType } from 'type-graphql';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
+import { Post } from './Post';
 
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
-  @Field(() => String)
-  @Column({ type: 'text', unique: true })
+  @Field()
+  @Column({ unique: true })
   username!: string;
 
-  @Field(() => String)
-  @Column({ type: 'text', unique: true })
+  @Field()
+  @Column({ unique: true })
   email!: string;
 
-  @Column({ type: 'text' })
+  @Column()
   password!: string;
+
+  @OneToMany(() => Post, (post) => post.creator)
+  posts!: Post[];
 }
