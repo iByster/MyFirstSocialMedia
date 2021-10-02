@@ -21,10 +21,12 @@ export const createTransporter = async () => {
   const accessToken = await new Promise((resolve, reject) => {
     oauth2Client.getAccessToken((err, token) => {
       if (err) {
-        reject();
+        reject("Failed to create access token :( ");
       }
       resolve(token);
     });
+  }).catch((e) => {
+    console.error('Get access token error', e);
   });
 
   const transporter = nodemailer.createTransport({
@@ -36,6 +38,9 @@ export const createTransporter = async () => {
       clientId: process.env.OAUTH_CLIENT_ID,
       clientSecret: process.env.OAUTH_CLIENT_SECRET,
       refreshToken: process.env.OAUTH_REFRESH_TOKEN,
+    },
+    tls: {
+      rejectUnauthorized: false,
     },
   } as SMTPTransport.Options);
 

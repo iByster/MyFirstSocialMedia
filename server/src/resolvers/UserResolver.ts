@@ -2,11 +2,13 @@ import {
   Arg,
   Ctx,
   Field,
+  FieldResolver,
   InputType,
   Mutation,
   ObjectType,
   Query,
   Resolver,
+  Root,
 } from 'type-graphql';
 import { User } from '../entities/User';
 import { MyContext } from '../types';
@@ -47,7 +49,7 @@ class UserResponse {
   user?: User;
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
   //? test
   @Query(() => User, { nullable: true })
@@ -57,6 +59,15 @@ export class UserResolver {
     }
 
     return User.findOne(req.session.userId);
+  }
+
+  @FieldResolver()
+  email(@Root() user: User, @Ctx() { req }: MyContext) {
+    if (req.session.userId === user.id) {
+      return user.email;
+    }
+
+    return '';
   }
 
   @Mutation(() => UserResponse)
@@ -217,7 +228,7 @@ export class UserResolver {
         email,
         password: passwordHash,
       }).save();
-    } catch (err) {
+    } catch (err: any) {
       // duplicate username error
       if (err.detail.includes('email')) {
         errors.push({

@@ -5,10 +5,14 @@ import {
   InputType,
   Int,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
+  UseMiddleware,
 } from 'type-graphql';
+import { getConnection } from 'typeorm';
 import { Post } from '../entities/Post';
+import { isAuth } from '../middleware/isAuth';
 import { MyContext } from '../types';
 
 @InputType()
@@ -20,11 +24,53 @@ class PostInput {
   text!: string;
 }
 
+@InputType()
+class PostMetaData {
+  @Field(() => Int)
+  limit!: number;
+
+  @Field({ nullable: true })
+  cursor?: string;
+}
+
+@ObjectType()
+class PaginatedPosts {
+  @Field(() => [Post])
+  posts!: Post[];
+  @Field()
+  hasMore?: boolean;
+}
+
 @Resolver()
 export class PostResolver {
-  @Query(() => [Post])
-  public async posts(): Promise<Post[]> {
-    return Post.find();
+  @Query(() => PaginatedPosts)
+  public async posts(
+    @Arg('metadata') metadata: PostMetaData
+  ): Promise<PaginatedPosts> {
+    const realLimit = Math.min(50, metadata.limit);
+    const reaLimitPlusOne = realLimit + 1;
+
+    const replacements: any[] = [reaLimitPlusOne];
+
+    if (metadata.cursor) {
+      replacements.push(new Date(parseInt(metadata.cursor)));
+    }
+
+    const posts = await getConnection().query(
+      `
+    select p.*
+    from post p
+    ${metadata.cursor ? `where p."createdAt" < $2` : ''}
+    order by p."createdAt" DESC
+    limit $1
+    `,
+      replacements
+    );
+
+    return {
+      posts: posts.slice(0, realLimit),
+      hasMore: posts.length === reaLimitPlusOne,
+    };
   }
 
   @Query(() => Post, { nullable: true })
@@ -33,14 +79,11 @@ export class PostResolver {
   }
 
   @Mutation(() => Post)
+  @UseMiddleware(isAuth)
   public async createPost(
     @Arg('input', () => PostInput) input: PostInput,
     @Ctx() { req }: MyContext
   ): Promise<Post> {
-    if (!req.session.userId) {
-      throw new Error('nah bro, you need to be in the <SYSTEM>');
-    }
-
     return Post.create({
       ...input,
       creatorId: req.session.userId,

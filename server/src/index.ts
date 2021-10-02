@@ -24,7 +24,7 @@ import { User } from './entities/User';
 
 const main = async () => {
   // sendEmail('bob@bob.com', '<b>Hello world?</b>');
-
+  // console.log(__prod__);
   dotenv.config();
 
   const PORT = process.env.PORT || 4000;
@@ -36,24 +36,27 @@ const main = async () => {
     password: process.env.DB_PASSWORD,
     logging: true,
     synchronize: true,
+    // migrations: [path.join(__dirname, './migrations/*')],
     entities: [Post, User],
   });
+
+  // await conn.runMigrations();
 
   // const orm = await MikroORM.init(microConfig);
   // await orm.getMigrator().up();
 
   const app = express();
 
+  
+  const RedisStore = connectRedis(session);
+  const redis = new Redis();
+  app.set("trust proxy", 1);
   app.use(
     cors({
       origin: 'http://localhost:3000',
       credentials: true,
     })
   );
-
-  const RedisStore = connectRedis(session);
-  const redis = new Redis();
-
   app.use(
     session({
       name: process.env.COOKIE_NAME,
