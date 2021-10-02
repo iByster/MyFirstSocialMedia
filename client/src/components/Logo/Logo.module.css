@@ -1,0 +1,8 @@
+@font-face {
+  font-family: 'LogoFont';
+  src: url('./fonts/go3v2.ttf');
+}
+
+.logo-font {
+  font-family: 'LogoFont' !important;
+}

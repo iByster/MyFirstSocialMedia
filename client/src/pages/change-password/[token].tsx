@@ -1,11 +1,11 @@
-import { Heading, Button, Box, useToast } from '@chakra-ui/react';
-import { Formik, Form } from 'formik';
+import { Box, Button, Heading, useToast } from '@chakra-ui/react';
+import { Form, Formik } from 'formik';
 import { NextPage } from 'next';
 import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/dist/client/router';
 import React, { useState } from 'react';
 import { InputField } from '../../components/InputField/InputField';
-import { Wrapper } from '../../components/Wrapper/Wrapper';
+import { Layout } from '../../components/Layout/Layout';
 import { useChangePasswordMutation } from '../../generated/graphql';
 import { UserChangePasswordPayload } from '../../utils/auth/auth-types';
 import { createUrqlClient } from '../../utils/createUrqlClient';
@@ -62,7 +62,7 @@ const ChangePassword: NextPage = ({}) => {
   };
 
   return (
-    <Wrapper variant="small">
+    <Layout variant="small">
       <Heading mb="10">Change Password</Heading>
 
       <Formik
@@ -102,7 +102,7 @@ const ChangePassword: NextPage = ({}) => {
           </Form>
         )}
       </Formik>
-    </Wrapper>
+    </Layout>
   );
 };
 

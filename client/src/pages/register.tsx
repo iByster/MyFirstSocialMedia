@@ -1,20 +1,21 @@
-import React from 'react';
-import { Form, Formik } from 'formik';
 import { Box, Button, useToast } from '@chakra-ui/react';
-import { Wrapper } from '../components/Wrapper/Wrapper';
-import { InputField } from '../components/InputField/InputField';
-import { useRegisterMutation } from '../generated/graphql';
-import { toErrorMap } from '../utils/toErrorMap';
-import { useRouter } from 'next/dist/client/router';
-import { UserRegisterPayload } from '../utils/auth/auth-types';
+import { Form, Formik } from 'formik';
 import { withUrqlClient } from 'next-urql';
+import { useRouter } from 'next/dist/client/router';
+import React, { useState } from 'react';
+import { InputField } from '../components/InputField/InputField';
+import { Layout } from '../components/Layout/Layout';
+import { useRegisterMutation } from '../generated/graphql';
+import { useIsAuth } from '../hooks/userIsAuth';
+import { UserRegisterPayload } from '../utils/auth/auth-types';
 import { createUrqlClient } from '../utils/createUrqlClient';
-import { useState } from 'react';
+import { toErrorMap } from '../utils/toErrorMap';
 
 // export default Register;
 interface registerProps {}
 
 const Register: React.FC<registerProps> = ({}) => {
+  // useIsAuth();
   const router = useRouter();
   const [, register] = useRegisterMutation();
   const [registerValues, setRegisterValues] = useState({
@@ -37,7 +38,6 @@ const Register: React.FC<registerProps> = ({}) => {
   ) => {
     {
       values = registerValues;
-      console.log(values);
       const response = await register(values);
       if (response.data?.register.errors) {
         setErrors(toErrorMap(response.data.register.errors));
@@ -56,14 +56,14 @@ const Register: React.FC<registerProps> = ({}) => {
   };
 
   return (
-    <Wrapper variant="small">
+    <Layout variant="small">
       <Formik
         initialValues={{ username: '', password: '', email: '' }}
         onSubmit={handleRegister}
       >
         {({ isSubmitting }) => (
           <Form>
-            <Box mt="8">
+            <Box>
               <InputField
                 name="email"
                 placeholder="email"
@@ -104,7 +104,7 @@ const Register: React.FC<registerProps> = ({}) => {
           </Form>
         )}
       </Formik>
-    </Wrapper>
+    </Layout>
   );
 };
 

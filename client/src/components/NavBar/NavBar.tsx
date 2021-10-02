@@ -1,13 +1,10 @@
-import { Box, Button, Flex, Image, Link } from '@chakra-ui/react';
+import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import React from 'react';
 import NextLink from 'next/link';
-import {
-  useLogoQuery,
-  useLogoutMutation,
-  useMeQuery,
-} from '../../generated/graphql';
+import { useLogoutMutation, useMeQuery } from '../../generated/graphql';
 import styles from './NavBar.module.css';
 import { isServer } from '../../utils/isServer';
+import { Logo } from '../Logo/Logo';
 interface NavBarProps {}
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
@@ -15,21 +12,17 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     const result = await logout();
     return result;
   };
-
   const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
   const [{ data, fetching }] = useMeQuery({
     pause: isServer(),
   });
-  const [{ data: logo }] = useLogoQuery();
 
   let body = null;
-
-  console.log(data);
 
   // data is loading
   if (fetching) {
     // not logged in
-  } else if (!data?.me) {
+  } else if (fetching || !data?.me) {
     body = (
       <>
         <NextLink href={'/login'} passHref>
@@ -61,8 +54,9 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
       bg="tomato"
       padding="6"
       className={`${styles.navbar} ${styles['text-align-vertical']}`}
+      mb="18"
     >
-      <Image src={`data:image/png;base64,${logo?.logo}`} boxSize="10" mr="5" />
+      <Logo />
       {body}
     </Flex>
   );

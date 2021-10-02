@@ -1,16 +1,18 @@
 import { Button, Heading, Text } from '@chakra-ui/react';
-import { Formik, Form } from 'formik';
+import { Form, Formik } from 'formik';
 import { withUrqlClient } from 'next-urql';
 import React, { useState } from 'react';
 import { InputField } from '../components/InputField/InputField';
-import { Wrapper } from '../components/Wrapper/Wrapper';
+import { Layout } from '../components/Layout/Layout';
 import { useForgotPasswordMutation } from '../generated/graphql';
+import { useIsAuth } from '../hooks/userIsAuth';
 import { createUrqlClient } from '../utils/createUrqlClient';
 import { toErrorMap } from '../utils/toErrorMap';
 
 interface ForgotPasswordProps {}
 
 const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
+  useIsAuth();
   const [email, setEmail] = useState('');
   const [, forgotPassword] = useForgotPasswordMutation();
   const [successMsg, setSuccessMsg] = useState(false);
@@ -34,7 +36,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
   };
 
   return (
-    <Wrapper variant="small">
+    <Layout variant="small">
       <Heading mb="2">Reset Password</Heading>
       <Text mb="10">
         Please enter your email so we can send you a change-password link.
@@ -66,7 +68,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
           </Form>
         )}
       </Formik>
-    </Wrapper>
+    </Layout>
   );
 };
 

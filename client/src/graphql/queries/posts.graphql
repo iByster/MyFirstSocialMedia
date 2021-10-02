@@ -1,6 +1,8 @@
-query Posts {
-  posts {
-    id
-    title
+query Posts($metadata: PostMetaData!) {
+  posts(metadata: $metadata) {
+    hasMore
+    posts {
+      ...PostSnippet
+    }
   }
 }

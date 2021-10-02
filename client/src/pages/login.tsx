@@ -2,19 +2,20 @@ import { Box, Button, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/dist/client/router';
+import NextLink from 'next/link';
 import React, { useState } from 'react';
 import { InputField } from '../components/InputField/InputField';
-import { Wrapper } from '../components/Wrapper/Wrapper';
+import { Layout } from '../components/Layout/Layout';
 import { useLoginMutation } from '../generated/graphql';
+import { useIsAuth } from '../hooks/userIsAuth';
 import { UserLoginPayload } from '../utils/auth/auth-types';
 import { createUrqlClient } from '../utils/createUrqlClient';
 import { toErrorMap } from '../utils/toErrorMap';
-import NextLink from 'next/link';
 
-// export default login;
 interface loginProps {}
 
 const Login: React.FC<loginProps> = ({}) => {
+  useIsAuth();
   const router = useRouter();
   const [, login] = useLoginMutation();
   const [loginValues, setLoginValues] = useState({
@@ -36,24 +37,28 @@ const Login: React.FC<loginProps> = ({}) => {
       setErrors(toErrorMap(response.data.login.errors));
     } else if (response.data?.login.user) {
       // worked
+      // loginContext();
       router.push('/');
     }
   };
   return (
-    <Wrapper variant="small">
+    <Layout variant="small">
       <Formik
         initialValues={{ usernameOrEmail: '', password: '' }}
         onSubmit={handleLogin}
       >
         {({ isSubmitting }) => (
           <Form>
-            <InputField
-              name="usernameOrEmail"
-              placeholder="username or email"
-              label="Username or Email"
-              value={loginValues.usernameOrEmail}
-              onChange={handleInputChange}
-            />
+            <Box>
+              <InputField
+                name="usernameOrEmail"
+                placeholder="username or email"
+                label="Username or Email"
+                value={loginValues.usernameOrEmail}
+                onChange={handleInputChange}
+              />
+            </Box>
+
             <Box mt="8">
               <InputField
                 name="password"
@@ -82,7 +87,7 @@ const Login: React.FC<loginProps> = ({}) => {
           </Form>
         )}
       </Formik>
-    </Wrapper>
+    </Layout>
   );
 };
 
