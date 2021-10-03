@@ -9,16 +9,24 @@ import { Spinner } from '@chakra-ui/spinner';
 interface LogoProps {}
 
 export const Logo: React.FC<LogoProps> = ({}) => {
-  const [{ data: logo }] = useLogoQuery();
+  const [{ data: logo, fetching }] = useLogoQuery();
+
+  let logoContent = null;
+
+  if (fetching) {
+    logoContent = <Spinner color="red.500" />;
+  } else if (!logo) {
+    logoContent = <Image boxSize="10" alt="LOGO" />;
+  } else {
+    logoContent = (
+      <Image src={`data:image/png;base64,${logo?.logo}`} boxSize="10" />
+    );
+  }
 
   return (
     <NextLink href={'/'} passHref>
       <Stack direction="row" userSelect="none">
-        {/* {!fetching ? ( */}
-        <Image src={`data:image/png;base64,${logo?.logo}`} boxSize="10" />
-        {/* ) : ( */}
-        {/* <Spinner color="red.500" /> */}
-        {/* )} */}
+        {logoContent}
         <Text color="#1A202C" fontSize="27" className={style['logo-font']}>
           HOGGOBLIN
         </Text>

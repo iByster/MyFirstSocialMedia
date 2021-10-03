@@ -1,0 +1,3 @@
+query Mask($goblinMask: Float!) {
+  mask(goblinMask: $goblinMask)
+}

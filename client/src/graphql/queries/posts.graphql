@@ -3,6 +3,13 @@ query Posts($metadata: PostMetaData!) {
     hasMore
     posts {
       ...PostSnippet
+      creator {
+        username
+        id
+        goblinMask {
+          id
+        }
+      }
     }
   }
 }

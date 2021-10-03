@@ -1,19 +1,15 @@
-import { dedupExchange, fetchExchange } from 'urql';
+import { Cache, cacheExchange } from '@urql/exchange-graphcache';
+import Router from 'next/router';
+import { dedupExchange, Exchange, fetchExchange } from 'urql';
+import { pipe, tap } from 'wonka';
 import {
   LoginMutation,
-  MeQuery,
-  MeDocument,
-  RegisterMutation,
   LogoutMutation,
-  CreatePostMutation,
-  PostsQuery,
-  PostsDocument,
+  MeDocument,
+  MeQuery,
+  RegisterMutation,
 } from '../generated/graphql';
-import { cacheExchange } from '@urql/exchange-graphcache';
 import { betterUpdateQuery } from './betterUpdateQuery';
-import { pipe, tap } from 'wonka';
-import { Exchange } from 'urql';
-import Router from 'next/router';
 import { isServer } from './isServer';
 
 export const errorExchange: Exchange =
@@ -30,6 +26,14 @@ export const errorExchange: Exchange =
       })
     );
   };
+
+function invalidateAllPosts(cache: Cache) {
+  const allFields = cache.inspectFields('Query');
+  const fieldInfos = allFields.filter((info) => info.fieldName === 'posts');
+  fieldInfos.forEach((fi) => {
+    cache.invalidate('Query', 'posts', fi.arguments || {});
+  });
+}
 
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie = '';
@@ -85,19 +89,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               );
             },
             createPost: (_result, _args, cache, _info) => {
-              betterUpdateQuery<CreatePostMutation, PostsQuery>(
-                cache,
-                { query: PostsDocument },
-                _result,
-                (result, query) => {
-                  console.log('QUERYYY', query);
-                  const posts = query.posts;
-                  posts.posts.unshift(result.createPost);
-                  return {
-                    posts,
-                  };
-                }
-              );
+              invalidateAllPosts(cache);
             },
             logout: (_result, _args, cache, _info) => {
               betterUpdateQuery<LogoutMutation, MeQuery>(

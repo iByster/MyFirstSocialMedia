@@ -2,7 +2,7 @@ import { Box, Stack } from '@chakra-ui/layout';
 import { Button, Flex } from '@chakra-ui/react';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Exact,
+    Exact,
   PostMetaData,
   usePostsQuery,
 } from '../../../../generated/graphql';

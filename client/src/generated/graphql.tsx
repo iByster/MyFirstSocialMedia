@@ -20,8 +20,17 @@ export type FieldError = {
   message: Scalars['String'];
 };
 
+export type GoblinMask = {
+  __typename?: 'GoblinMask';
+  id: Scalars['Int'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  photo: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  vote: Scalars['Boolean'];
   createPost: Post;
   updatePost?: Maybe<Post>;
   deletePost: Scalars['Boolean'];
@@ -30,6 +39,12 @@ export type Mutation = {
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+};
+
+
+export type MutationVoteArgs = {
+  value: Scalars['Float'];
+  postId: Scalars['Float'];
 };
 
 
@@ -86,6 +101,7 @@ export type Post = {
   text: Scalars['String'];
   points: Scalars['Float'];
   creatorId: Scalars['Float'];
+  creator: User;
 };
 
 export type PostInput = {
@@ -106,6 +122,7 @@ export type Query = {
   me?: Maybe<User>;
   users: Array<User>;
   logo: Scalars['String'];
+  mask: Scalars['String'];
 };
 
 
@@ -116,6 +133,11 @@ export type QueryPostsArgs = {
 
 export type QueryPostArgs = {
   id: Scalars['Int'];
+};
+
+
+export type QueryMaskArgs = {
+  goblinMask: Scalars['Float'];
 };
 
 export type RegisterInput = {
@@ -131,6 +153,7 @@ export type User = {
   updatedAt: Scalars['String'];
   username: Scalars['String'];
   email: Scalars['String'];
+  goblinMask: GoblinMask;
 };
 
 export type UserResponse = {
@@ -256,6 +279,16 @@ export type LogoQuery = (
   & Pick<Query, 'logo'>
 );
 
+export type MaskQueryVariables = Exact<{
+  goblinMask: Scalars['Float'];
+}>;
+
+
+export type MaskQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'mask'>
+);
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -279,6 +312,14 @@ export type PostsQuery = (
     & Pick<PaginatedPosts, 'hasMore'>
     & { posts: Array<(
       { __typename?: 'Post' }
+      & { creator: (
+        { __typename?: 'User' }
+        & Pick<User, 'username' | 'id'>
+        & { goblinMask: (
+          { __typename?: 'GoblinMask' }
+          & Pick<GoblinMask, 'id'>
+        ) }
+      ) }
       & PostSnippetFragment
     )> }
   ) }
@@ -399,6 +440,15 @@ export const LogoDocument = gql`
 export function useLogoQuery(options: Omit<Urql.UseQueryArgs<LogoQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<LogoQuery>({ query: LogoDocument, ...options });
 };
+export const MaskDocument = gql`
+    query Mask($goblinMask: Float!) {
+  mask(goblinMask: $goblinMask)
+}
+    `;
+
+export function useMaskQuery(options: Omit<Urql.UseQueryArgs<MaskQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<MaskQuery>({ query: MaskDocument, ...options });
+};
 export const MeDocument = gql`
     query Me {
   me {
@@ -416,6 +466,13 @@ export const PostsDocument = gql`
     hasMore
     posts {
       ...PostSnippet
+      creator {
+        username
+        id
+        goblinMask {
+          id
+        }
+      }
     }
   }
 }
