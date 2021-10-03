@@ -21,6 +21,8 @@ import { createConnection } from 'typeorm';
 // import typeormConfig from './type-orm.config';
 import { Post } from './entities/Post';
 import { User } from './entities/User';
+import { Updoot } from './entities/Updoot';
+import { GoblinMask } from './entities/GoblinMask';
 
 const main = async () => {
   // sendEmail('bob@bob.com', '<b>Hello world?</b>');
@@ -37,7 +39,7 @@ const main = async () => {
     logging: true,
     synchronize: true,
     // migrations: [path.join(__dirname, './migrations/*')],
-    entities: [Post, User],
+    entities: [Post, User, Updoot, GoblinMask],
   });
 
   // await conn.runMigrations();
@@ -47,10 +49,9 @@ const main = async () => {
 
   const app = express();
 
-  
   const RedisStore = connectRedis(session);
   const redis = new Redis();
-  app.set("trust proxy", 1);
+  app.set('trust proxy', 1);
   app.use(
     cors({
       origin: 'http://localhost:3000',

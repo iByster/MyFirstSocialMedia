@@ -8,10 +8,14 @@ import { Post } from './Post';
 @Entity()
 export class Updoot extends BaseEntity {
   @Field()
+  @Column({ type: 'int' })
+  value!: number;
+
+  @Field()
   @Column()
   postId!: number;
 
-  @Field()
+  @Field(() => Post)
   @ManyToOne(() => Post, (post) => post.updoots)
   post!: Post;
 
@@ -19,7 +23,7 @@ export class Updoot extends BaseEntity {
   @Column()
   userId!: number;
 
-  @Field()
+  @Field(() => User)
   @ManyToOne(() => User, (user) => user.updoots)
   user!: User;
 }

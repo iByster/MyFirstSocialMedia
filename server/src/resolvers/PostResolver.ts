@@ -43,6 +43,34 @@ class PaginatedPosts {
 
 @Resolver()
 export class PostResolver {
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async vote(
+    @Arg('postId') postId: number,
+    @Arg('value') value: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const isUpdoot = value !== -1;
+    const realValue = isUpdoot ? 1 : -1;
+
+    const { userId } = req.session;
+
+    await getConnection().query(
+      `
+      START TRANSACTION;
+      INSERT INTO updoot ("userId", "postId", value)
+      VALUES (${userId}, ${postId}, ${value});
+
+      UPDATE post
+      SET points = points + ${realValue}
+      WHERE id = ${postId};
+      COMMIT
+      `
+    );
+
+    return true;
+  }
+
   @Query(() => PaginatedPosts)
   public async posts(
     @Arg('metadata') metadata: PostMetaData
@@ -55,11 +83,20 @@ export class PostResolver {
     if (metadata.cursor) {
       replacements.push(new Date(parseInt(metadata.cursor)));
     }
-
+    // LEFT JOIN "goblin_mask" "goblinMask" ON "goblinMask"."id"="user"."goblinMaskId"
     const posts = await getConnection().query(
       `
-    select p.*
+    select p.*,
+    json_build_object(
+      'id', u.id,
+      'username', u.username,
+      'goblinMask', json_build_object(
+        'id', g.id
+      )
+    ) as creator
     from post p
+    inner join public.user u on u.id = p."creatorId"
+    left join public.goblin_mask g on g.id = u."goblinMaskId"
     ${metadata.cursor ? `where p."createdAt" < $2` : ''}
     order by p."createdAt" DESC
     limit $1

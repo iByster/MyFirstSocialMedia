@@ -17,6 +17,7 @@ import * as EmailValidator from 'email-validator';
 import { sendEmail } from '../utils/email/sendMail';
 import { v4 } from 'uuid';
 import { FORGOT_PASSWORD_PREFIX } from '../constants';
+import { getConnection } from 'typeorm';
 
 @InputType()
 class RegisterInput {
@@ -53,12 +54,21 @@ class UserResponse {
 export class UserResolver {
   //? test
   @Query(() => User, { nullable: true })
-  me(@Ctx() { req }: MyContext): Promise<User | undefined> | null {
+  async me(@Ctx() { req }: MyContext): Promise<User | undefined | null> {
     if (!req.session.userId) {
       return null;
     }
 
-    return User.findOne(req.session.userId);
+    return await getConnection()
+      .getRepository(User)
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.goblinMask', 'goblinMask')
+      .where('user.id = :id', { id: req.session.userId })
+      .getOne();
+
+    // console.log(users);
+
+    // return User.findOne(req.session.userId);
   }
 
   @FieldResolver()
