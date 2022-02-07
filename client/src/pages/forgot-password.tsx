@@ -14,7 +14,7 @@ interface ForgotPasswordProps {}
 const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
   useIsAuth();
   const [email, setEmail] = useState('');
-  const [, forgotPassword] = useForgotPasswordMutation();
+  const [forgotPassword] = useForgotPasswordMutation();
   const [successMsg, setSuccessMsg] = useState(false);
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -25,7 +25,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
     _values: { email: string },
     { setErrors }: any
   ) => {
-    const response = await forgotPassword({ email });
+    const response = await forgotPassword({variables: { email }});
     if (response.data?.forgotPassword.errors) {
       setErrors(toErrorMap(response.data.forgotPassword.errors));
       setSuccessMsg(false);
@@ -72,4 +72,5 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(ForgotPassword);
+// export default withUrqlClient(createUrqlClient)(ForgotPassword);
+export default ForgotPassword;

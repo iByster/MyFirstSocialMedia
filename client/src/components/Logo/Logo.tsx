@@ -9,11 +9,11 @@ import { Spinner } from '@chakra-ui/spinner';
 interface LogoProps {}
 
 export const Logo: React.FC<LogoProps> = ({}) => {
-  const [{ data: logo, fetching }] = useLogoQuery();
+  const { data: logo, loading } = useLogoQuery();
 
   let logoContent = null;
 
-  if (fetching) {
+  if (loading) {
     logoContent = <Spinner color="red.500" />;
   } else if (!logo) {
     logoContent = <Image boxSize="10" alt="LOGO" />;

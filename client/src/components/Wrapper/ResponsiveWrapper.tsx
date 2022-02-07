@@ -30,6 +30,8 @@ export const ResponsiveWrapper: React.FC<ResponsiveWrapperProps> = ({
       {...props}
       margin="0 auto"
       mt="10"
+      marginBottom="20"
+      minHeight="500"
     >
       {children}
     </Box>

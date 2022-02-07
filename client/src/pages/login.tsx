@@ -1,6 +1,5 @@
 import { Box, Button, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
-import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/dist/client/router';
 import NextLink from 'next/link';
 import React, { useState } from 'react';
@@ -9,7 +8,6 @@ import { Layout } from '../components/Layout/Layout';
 import { useLoginMutation } from '../generated/graphql';
 import { useIsAuth } from '../hooks/userIsAuth';
 import { UserLoginPayload } from '../utils/auth/auth-types';
-import { createUrqlClient } from '../utils/createUrqlClient';
 import { toErrorMap } from '../utils/toErrorMap';
 
 interface loginProps {}
@@ -17,7 +15,7 @@ interface loginProps {}
 const Login: React.FC<loginProps> = ({}) => {
   useIsAuth();
   const router = useRouter();
-  const [, login] = useLoginMutation();
+  const [login] = useLoginMutation();
   const [loginValues, setLoginValues] = useState({
     usernameOrEmail: '',
     password: '',
@@ -32,7 +30,7 @@ const Login: React.FC<loginProps> = ({}) => {
 
   const handleLogin = async (values: UserLoginPayload, { setErrors }: any) => {
     values = loginValues;
-    const response = await login(values);
+    const response = await login({variables: values});
     if (response.data?.login.errors) {
       setErrors(toErrorMap(response.data.login.errors));
     } else if (response.data?.login.user) {
@@ -91,4 +89,5 @@ const Login: React.FC<loginProps> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Login);
+// export default withUrqlClient(createUrqlClient)(Login);
+export default Login;

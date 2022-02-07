@@ -7,12 +7,12 @@ import {
   Input,
   Spacer,
   Textarea,
-  useToast,
+  useToast
 } from '@chakra-ui/react';
 import { Collapse } from '@chakra-ui/transition';
 import { useRouter } from 'next/dist/client/router';
 import React, { useRef, useState } from 'react';
-import { useCreatePostMutation } from '../../generated/graphql';
+import { PostsDocument, useCreatePostMutation } from '../../generated/graphql';
 import style from './CreatePost.module.css';
 
 interface CreatePostProps {}
@@ -29,7 +29,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({ ...props }) => {
     title: 'Write a post...',
     text: 'Title...',
   });
-  const [, createPost] = useCreatePostMutation();
+  const [createPost] = useCreatePostMutation();
   const toast = useToast();
 
   useOutsideClick({
@@ -77,11 +77,21 @@ export const CreatePost: React.FC<CreatePostProps> = ({ ...props }) => {
   };
 
   const handleCreatePost = async () => {
-    const response = await createPost({ input: inputValues });
-    if (response?.error) {
+    const response = await createPost({
+      variables: { input: inputValues },
+      refetchQueries: [{
+        query: PostsDocument,
+        variables: {
+          metadata: {
+            limit: 3,
+          }
+        }
+      }],
+    });
+    if (response?.errors) {
       toast({
         title: 'Something went wrong...',
-        description: response.error.message,
+        description: response.errors,
         status: 'error',
         duration: 9000,
         isClosable: true,

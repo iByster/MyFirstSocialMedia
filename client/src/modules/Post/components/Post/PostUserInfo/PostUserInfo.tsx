@@ -11,7 +11,7 @@ interface PostUserInfoProps {
 }
 
 export const PostUserInfo: React.FC<PostUserInfoProps> = ({ user }) => {
-  const [{ data: mask, fetching }] = useMaskQuery({
+  const { data: mask, loading } = useMaskQuery({
     variables: {
       goblinMask: user.goblinMask.id,
     },
@@ -19,7 +19,7 @@ export const PostUserInfo: React.FC<PostUserInfoProps> = ({ user }) => {
 
   let avatarContent = null;
 
-  if (fetching) {
+  if (loading) {
     avatarContent = <Spinner color="red.500" />;
   } else if (!mask) {
     avatarContent = (

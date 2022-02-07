@@ -1,14 +1,11 @@
 import { Box, Button, useToast } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
-import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/dist/client/router';
 import React, { useState } from 'react';
 import { InputField } from '../components/InputField/InputField';
 import { Layout } from '../components/Layout/Layout';
 import { useRegisterMutation } from '../generated/graphql';
-import { useIsAuth } from '../hooks/userIsAuth';
 import { UserRegisterPayload } from '../utils/auth/auth-types';
-import { createUrqlClient } from '../utils/createUrqlClient';
 import { toErrorMap } from '../utils/toErrorMap';
 
 // export default Register;
@@ -17,7 +14,7 @@ interface registerProps {}
 const Register: React.FC<registerProps> = ({}) => {
   // useIsAuth();
   const router = useRouter();
-  const [, register] = useRegisterMutation();
+  const [register] = useRegisterMutation();
   const [registerValues, setRegisterValues] = useState({
     username: '',
     email: '',
@@ -38,7 +35,7 @@ const Register: React.FC<registerProps> = ({}) => {
   ) => {
     {
       values = registerValues;
-      const response = await register(values);
+      const response = await register({variables: values});
       if (response.data?.register.errors) {
         setErrors(toErrorMap(response.data.register.errors));
       } else if (response.data?.register.user) {
@@ -108,4 +105,5 @@ const Register: React.FC<registerProps> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Register);
+// export default withUrqlClient(createUrqlClient)(Register);
+export default Register;

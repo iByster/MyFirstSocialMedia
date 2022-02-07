@@ -1,84 +1,68 @@
 import { Box, Stack } from '@chakra-ui/layout';
-import { Button, Flex } from '@chakra-ui/react';
-import React, { useEffect, useRef, useState } from 'react';
-import {
-    Exact,
-  PostMetaData,
-  usePostsQuery,
-} from '../../../../generated/graphql';
+import React from 'react';
+import { Waypoint } from 'react-waypoint';
+import { usePostsQuery } from '../../../../generated/graphql';
 import Post from '../Post/Post';
 import { LoadingPosts } from './LoadingPosts';
 
-interface PostsProps {
-  variables?: Exact<{ metadata: PostMetaData }>;
-  isLastPage?: any;
-  onLoadMore?: any;
-}
+interface PostsProps {}
 
-const Posts: React.FC<PostsProps> = ({ variables, isLastPage, onLoadMore }) => {
-  const [{ data, fetching }] = usePostsQuery({
-    variables,
+const Posts: React.FC<PostsProps> = () => {
+  const { data, fetchMore, networkStatus } = usePostsQuery({
+    variables: { metadata: { limit: 3 } },
+    notifyOnNetworkStatusChange: true,
   });
 
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const [buttonRef, setButtonRef] = useState<HTMLButtonElement | null>(null);
-
-  useEffect(() => {
-    observerRef.current = new IntersectionObserver((entries) => {
-      const entry = entries[0];
-      if (entry.isIntersecting) {
-        const ceva = entry.target as HTMLElement;
-        ceva.click();
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    if (buttonRef) {
-      if (observerRef.current) {
-        observerRef.current.observe(
-          document.querySelector('#buttonLoadMore') as Element
-        );
-      }
-    }
-  }, [buttonRef]);
-
-  let renderContent = null;
-
-  if (fetching) {
-    renderContent = <LoadingPosts />;
-  } else if (!data) {
-    renderContent = <Box>No content</Box>;
-  } else {
-    renderContent = data.posts.posts.map((post) => (
-      <Post key={post.id} post={post}></Post>
-    ));
+  if (!data || !data.posts) {
+    return <LoadingPosts />;
+  }
+  if (data.posts.posts.length <= 0) {
+    return <Box>No content</Box>;
   }
 
   return (
     <>
       <Stack mt="8" spacing={8} id="list">
-        {renderContent}
-        {(isLastPage && fetching) || (isLastPage && data?.posts.hasMore) ? (
-          <Flex>
-            <Button
-              id="buttonLoadMore"
-              onClick={() => {
-                if (data?.posts) {
-                  onLoadMore(
-                    data.posts.posts[data.posts.posts.length - 1].createdAt
-                  );
-                }
-              }}
-              isLoading={fetching}
-              m="auto"
-              my={8}
-              ref={setButtonRef}
-            >
-              load more
-            </Button>
-          </Flex>
-        ) : null}
+        {data.posts.posts.map((post, i) => (
+          <>
+            <Post key={post.id} post={post}></Post>
+            {i === data.posts.posts.length - 1 && (
+              <Waypoint
+                onEnter={() => {
+                  if (data.posts.hasMore) {
+                    return fetchMore({
+                      variables: {
+                        metadata: {
+                          limit: 3,
+                          cursor:
+                            data.posts.posts[data.posts.posts.length - 1]
+                              .createdAt,
+                        },
+                      },
+                      updateQuery: (pv: any, { fetchMoreResult }: any) => {
+                        if (!fetchMoreResult) {
+                          return pv;
+                        }
+
+                        return {
+                          posts: {
+                            __typename: 'PaginatedPosts',
+                            posts: [
+                              ...pv.posts.posts,
+                              ...fetchMoreResult.posts.posts,
+                            ],
+                            hasMore: fetchMoreResult.posts.hasMore,
+                          },
+                        };
+                      },
+                    });
+                  }
+                }}
+              />
+            )}
+          </>
+        ))}
+        {networkStatus === 3 ? <LoadingPosts /> : null}
       </Stack>
     </>
   );

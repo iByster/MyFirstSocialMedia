@@ -1,14 +1,12 @@
 import { Box, Button, Heading, useToast } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import { NextPage } from 'next';
-import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/dist/client/router';
 import React, { useState } from 'react';
 import { InputField } from '../../components/InputField/InputField';
 import { Layout } from '../../components/Layout/Layout';
 import { useChangePasswordMutation } from '../../generated/graphql';
 import { UserChangePasswordPayload } from '../../utils/auth/auth-types';
-import { createUrqlClient } from '../../utils/createUrqlClient';
 import { toErrorMap } from '../../utils/toErrorMap';
 
 const ChangePassword: NextPage = ({}) => {
@@ -16,7 +14,7 @@ const ChangePassword: NextPage = ({}) => {
     newPassword: '',
     confNewPassword: '',
   });
-  const [, changePassword] = useChangePasswordMutation();
+  const [changePassword] = useChangePasswordMutation();
   const router = useRouter();
   const toast = useToast();
 
@@ -33,9 +31,11 @@ const ChangePassword: NextPage = ({}) => {
   ) => {
     const token = router.query.token as string;
     const response = await changePassword({
-      newPassword: newPasswordValues.newPassword,
-      confNewPassword: newPasswordValues.confNewPassword,
-      token,
+      variables: {
+        newPassword: newPasswordValues.newPassword,
+        confNewPassword: newPasswordValues.confNewPassword,
+        token,
+      },
     });
     if (response.data?.changePassword.errors) {
       const errorMap = toErrorMap(response.data.changePassword.errors);
@@ -106,4 +106,5 @@ const ChangePassword: NextPage = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(ChangePassword as any);
+// export default withUrqlClient(createUrqlClient)(ChangePassword as any);
+export default ChangePassword;

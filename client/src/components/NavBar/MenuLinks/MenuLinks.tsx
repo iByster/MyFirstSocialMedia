@@ -2,7 +2,7 @@ import { Button } from '@chakra-ui/button';
 import { Box, Stack } from '@chakra-ui/layout';
 import { Collapse } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useLogoutMutation, useMeQuery } from '../../../generated/graphql';
 import { useMediaQuery } from '../../../hooks/useMediaQuery';
 import { isServer } from '../../../utils/isServer';
@@ -23,14 +23,14 @@ export const MenuLinks: React.FC<MenuLinksProps> = ({ isOpen }) => {
 
   const breakpoint = useMediaQuery(832);
 
-  const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
-  const [{ data, fetching }] = useMeQuery({
-    pause: isServer(),
+  const [logout, { loading: logoutFetching }] = useLogoutMutation();
+  const { data, loading } = useMeQuery({
+    skip: isServer(),
   });
 
   let body = null;
 
-  if (fetching) {
+  if (loading) {
     // not logged in
     body = (
       <>
@@ -38,7 +38,7 @@ export const MenuLinks: React.FC<MenuLinksProps> = ({ isOpen }) => {
         <MenuItem to="/register" name="Register" />
       </>
     );
-  } else if (fetching || !data?.me) {
+  } else if (loading || !data?.me) {
     body = (
       <>
         <MenuItem to="/login" name="Login" />
