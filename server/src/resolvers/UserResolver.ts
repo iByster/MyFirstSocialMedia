@@ -4,6 +4,7 @@ import {
   Field,
   FieldResolver,
   InputType,
+  Int,
   Mutation,
   ObjectType,
   Query,
@@ -18,6 +19,7 @@ import { sendEmail } from '../utils/email/sendMail';
 import { v4 } from 'uuid';
 import { FORGOT_PASSWORD_PREFIX } from '../constants';
 import { getConnection } from 'typeorm';
+import { GoblinMask } from '../entities/GoblinMask';
 
 @InputType()
 class RegisterInput {
@@ -237,6 +239,7 @@ export class UserResolver {
         username,
         email,
         password: passwordHash,
+        goblinMask: { id: Math.floor(Math.random() * 4 + 1) },
       }).save();
     } catch (err: any) {
       // duplicate username error
@@ -257,6 +260,18 @@ export class UserResolver {
 
     if (user) {
       req.session!.userId = user.id;
+    }
+
+    let goblinMask: GoblinMask;
+
+    if (user) {
+      // req.session!.userId = user.id;
+      try {
+        goblinMask = (await GoblinMask.findOne(user?.goblinMask.id))!;
+        user.goblinMask = goblinMask;
+      } catch (err: any) {
+        console.log('Mask error');
+      }
     }
 
     return { user };
@@ -290,8 +305,8 @@ export class UserResolver {
 
     const user = await User.findOne(
       usernameOrEmail.includes('@')
-        ? { where: { email: usernameOrEmail } }
-        : { where: { username: usernameOrEmail } }
+        ? { where: { email: usernameOrEmail }, relations: ['goblinMask'] }
+        : { where: { username: usernameOrEmail }, relations: ['goblinMask'] }
     );
 
     if (!user) {
@@ -332,6 +347,16 @@ export class UserResolver {
     req.session!.userId = user.id;
 
     return { user };
+  }
+
+  @Query(() => User, { nullable: true })
+  async getUserById(
+    @Arg('userId', () => Int) userId: number
+  ): Promise<User | undefined | null> {
+    return await User.findOne({
+      where: { id: userId },
+      relations: ['goblinMask'],
+    });
   }
 
   @Query(() => [User])

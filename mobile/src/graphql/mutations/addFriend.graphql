@@ -1,0 +1,13 @@
+mutation AddFriend($senderId: Float!, $receiverUsername: String!){
+  addFriend(options: {senderId: $senderId, receiverUsername: $receiverUsername}){
+    errors{
+      message
+    }
+	friendship {
+        id
+        senderId
+        receiverId
+        status
+    }
+  }
+}

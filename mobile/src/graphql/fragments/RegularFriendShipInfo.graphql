@@ -1,0 +1,6 @@
+fragment RegularFriendShipInfo on FriendShip {
+  id
+  senderId
+  receiverId
+  status
+}

@@ -1,0 +1,8 @@
+fragment RegularUserInfo on User {
+  id
+  username
+  email
+  goblinMask {
+    photo
+  }
+}

@@ -1,0 +1,6 @@
+mutation UpdateFriendShipStatus($friendshipId: Float!, $status: String!) {
+	updateFriendShipStatus(updatePayload: {friendshipId: $friendshipId, status: $status}) {
+    ok
+    ...RegularFriendShipResponse
+  }  
+}

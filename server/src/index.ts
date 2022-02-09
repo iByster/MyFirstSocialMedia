@@ -23,6 +23,10 @@ import { Post } from './entities/Post';
 import { User } from './entities/User';
 import { Updoot } from './entities/Updoot';
 import { GoblinMask } from './entities/GoblinMask';
+import { FriendShip } from './entities/FriendShip';
+import { Message } from './entities/Message';
+import { MessageResolver } from './resolvers/MessageResolver';
+import { FriendShipResolver } from './resolvers/FriendShipResolver';
 
 const main = async () => {
   // sendEmail('bob@bob.com', '<b>Hello world?</b>');
@@ -39,7 +43,7 @@ const main = async () => {
     logging: true,
     synchronize: true,
     // migrations: [path.join(__dirname, './migrations/*')],
-    entities: [Post, User, Updoot, GoblinMask],
+    entities: [Post, User, Updoot, GoblinMask, FriendShip, Message],
   });
 
   // await conn.runMigrations();
@@ -79,7 +83,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver, PostResolver, UserResolver, GoblinResolver],
+      resolvers: [HelloResolver, PostResolver, UserResolver, GoblinResolver, MessageResolver, FriendShipResolver],
       validate: false,
     }),
     context: ({ req, res }): MyContext => ({ req, res, redis }),

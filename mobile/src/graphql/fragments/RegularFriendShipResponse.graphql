@@ -1,0 +1,8 @@
+fragment RegularFriendShipResponse on FriendShipResponse {
+  errors {
+    message
+  }
+  friendship {
+    ...RegularFriendShipInfo
+  }
+}

@@ -1,0 +1,17 @@
+mutation SendMessage(
+  $senderId: Float!
+  $receiverId: Float!
+  $message: String!
+  $uuid: String!
+) {
+  sendMessage(
+    options: {
+      senderId: $senderId
+      receiverId: $receiverId
+      message: $message
+      uuid: $uuid
+    }
+  ) {
+    ...RegularMessageResponse
+  }
+}

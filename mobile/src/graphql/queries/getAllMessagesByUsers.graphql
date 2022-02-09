@@ -1,0 +1,5 @@
+query GetAllMessagesByUsers($userId1: Float!, $userId2: Float!) {
+  getAllMessagesByUsers(userId1: $userId1, userId2: $userId2) {
+    ...RegularMessageInfo
+  }
+}

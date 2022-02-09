@@ -1,0 +1,8 @@
+mutation DeleteFriendShip($friendshipId: Float!) {
+  deleteFriendShip(friendshipId: $friendshipId) {
+    ok
+    errors {
+      message
+    }
+  }
+}

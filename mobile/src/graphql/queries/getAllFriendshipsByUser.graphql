@@ -1,0 +1,8 @@
+query GetAllFriendshipsByUser($userId: Float!) {
+  getAllFriendShipsByUser(userId: $userId) {
+    id
+    senderId
+    receiverId
+    status
+  }
+}

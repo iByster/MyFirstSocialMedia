@@ -1,0 +1,9 @@
+fragment RegularMessageResponse on MessageResponse {
+  errors {
+    message
+  }
+  message {
+    ...RegularMessageInfo
+  }
+  ok
+}

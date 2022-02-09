@@ -1,0 +1,10 @@
+fragment RegularMessageInfo on Message {
+  uuid
+  id
+  createdAt
+  senderId
+  receiverId
+  message
+  seen
+  edited
+}

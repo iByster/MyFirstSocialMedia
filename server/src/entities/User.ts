@@ -1,5 +1,5 @@
 import { Field, ObjectType } from 'type-graphql';
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 import { GoblinMask } from './GoblinMask';
 import { Post } from './Post';
@@ -26,7 +26,6 @@ export class User extends BaseEntity {
   updoots!: Updoot[];
 
   @Field()
-  @OneToOne(() => GoblinMask)
-  @JoinColumn()
+  @ManyToOne(() => GoblinMask, goblinMask => goblinMask.users)
   goblinMask!: GoblinMask;
 }

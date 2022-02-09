@@ -1,0 +1,8 @@
+mutation UpdateUserProfile($userId: Float!, $goblinMaskId: Float!, $username: String!) {
+  updateUserProfile(updatePayload: {username: $username, goblinMaskId: $goblinMaskId, userId: $userId}) {
+    ok
+    errors {
+      message
+    }
+  }
+}

@@ -1,0 +1,5 @@
+query GetUserById($userId: Int!) {
+  getUserById(userId: $userId) {
+    ...RegularUserInfo
+  }
+}

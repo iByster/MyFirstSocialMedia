@@ -1,0 +1,5 @@
+mutation UpdateMessage($messageId: String!, $message: String!) {
+  updateMessage(updatePayload: {messageId: $messageId, message: $message}) {
+    ...RegularMessageResponse
+  }
+}

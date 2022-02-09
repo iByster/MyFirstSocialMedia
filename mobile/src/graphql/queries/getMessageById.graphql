@@ -1,0 +1,5 @@
+query GetMessageById($messageId: Float!) {
+  getMessageById(messageId: $messageId) {
+    ...RegularMessageInfo
+  }
+}
