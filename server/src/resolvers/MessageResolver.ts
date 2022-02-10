@@ -148,8 +148,6 @@ export class MessageResolver {
       ],
     });
 
-    console.log(res);
-
     return res;
   }
 

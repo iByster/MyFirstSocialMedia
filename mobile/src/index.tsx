@@ -18,13 +18,6 @@ import {Register} from './components/Register/Register';
 
 const Stack = createNativeStackNavigator();
 
-// const networkInterface = createNetworkInterface({ 
-//   uri: 'https://my.domain.name/graphql',
-//   opts: {
-//     credentials: 'same-origin',
-//   }
-// });
-
 const errorLink = onError(
   ({graphQLErrors, networkError, response, operation}) => {
     if (graphQLErrors) {

@@ -1,4 +1,3 @@
-import {useNetInfo} from '@react-native-community/netinfo';
 import {useNavigation} from '@react-navigation/core';
 import {StackNavigationProp} from '@react-navigation/stack';
 import React from 'react';
@@ -8,7 +7,6 @@ import {User} from '../../databases/UserSchema';
 import {RootStackParamList} from '../../screens/RootStackParams';
 import {getImage} from '../../utils/getImage';
 import HamburgerMenu from '../Drawer/Hamburger';
-import MiniOfflineSign from '../OfflineNotice/OfflineNotice';
 
 interface HeaderProps {
   user: User;

@@ -60,7 +60,6 @@ export class FriendShipResolver {
         : { where: { username: receiverUsername } }
     );
 
-    // console.log(friendFound);
 
     if (!friendFound) {
       return {

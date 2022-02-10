@@ -9,7 +9,7 @@ interface UsersListProps {
   friends: FriendShip[];
   currentUser: User;
   deleteUser(userId: number): void;
-  gotToChat(receiverId: number): void;
+  gotToChat(receiver: User): void;
   handleFriendship(friend: FriendShip, status: UserCardType): void;
 }
 
@@ -20,7 +20,6 @@ export const UsersList: React.FC<UsersListProps> = ({
   currentUser,
   handleFriendship,
 }) => {
-  console.log(friends);
   const renderItem: ListRenderItem<FriendShip> = ({item}) => {
     return (
       <UserListItem

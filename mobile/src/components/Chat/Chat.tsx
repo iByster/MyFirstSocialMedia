@@ -2,11 +2,11 @@ import {useNetInfo} from '@react-native-community/netinfo';
 import {RouteProp, useRoute} from '@react-navigation/core';
 import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Alert,
   ListRenderItem,
   SafeAreaView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import {
@@ -14,24 +14,19 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native-gesture-handler';
+import 'react-native-get-random-values';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {v4 as uuidv4} from 'uuid';
 import {
   deleteMessageDB,
   getAllMessagesByUsers as getAllMessagesByUsersRealm,
-  getUserById as getUserByIdRealm,
   insertMessage,
   updateMessage as updateMessageRealm,
 } from '../../databases/allSchemas';
 import {Message} from '../../databases/MessageSchema';
-import {User} from '../../databases/UserSchema';
 import {
-  GetAllMessagesByUsersDocument,
-  useDeleteFriendShipMutation,
   useDeleteMessageMutation,
-  useGetAllMessagesByUsersLazyQuery,
   useGetAllMessagesByUsersQuery,
-  useGetUserByIdLazyQuery,
-  useGetUserByIdQuery,
   useSendMessageMutation,
   useUpdateMessageMutation,
 } from '../../generated/graphql';
@@ -41,18 +36,13 @@ import {HeaderComponent} from '../Header/Header';
 import {EditMessageModal} from '../Message/EditMessageModal';
 import {MessageComponent} from '../Message/Message';
 import {MessageModal} from '../Message/MessageModal';
-import 'react-native-get-random-values';
-import {v4 as uuidv4} from 'uuid';
 
 interface ChatProps {}
 
 export const Chat: React.FC<ChatProps> = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'Chat'>>();
   const [input, setInput] = useState('');
-  const {senderId, receiverId} = route.params;
-  // console.log('SENDER RECEIVER', senderId, receiverId);
-  const [receiver, setReceiver] = useState<User>();
-  const [sender, setSender] = useState<User>();
+  const {sender, receiver} = route.params;
   const [messagesState, setMessagesState] = useState<Message[]>([]);
   const [mainModalOpen, setMainModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -66,89 +56,31 @@ export const Chat: React.FC<ChatProps> = () => {
     refetch: refetchMessages,
   } = useGetAllMessagesByUsersQuery({
     variables: {
-      userId1: senderId,
-      userId2: receiverId,
+      userId1: sender.id,
+      userId2: receiver.id,
     },
   });
 
-  // const {data: sender, loading} = useGetUserByIdQuery({
-  //   variables: {
-  //     userId: senderId
-  //   }
-  // });
-
-  const [getUserById] = useGetUserByIdLazyQuery();
   const [deleteMessageServ] = useDeleteMessageMutation();
   const [updateMessage] = useUpdateMessageMutation();
 
   useEffect(() => {
     const init = async () => {
       const currentMessages = (await getAllMessagesByUsersRealm(
-        senderId,
-        receiverId,
+        sender.id,
+        receiver.id,
       )) as Message[];
       setMessagesState(currentMessages);
     };
 
     init();
-  }, [senderId, receiverId]);
-
-  useEffect(() => {
-    const init = async () => {
-      if (netInfo.isConnected) {
-        const receiverRes = await getUserById({
-          variables: {userId: receiverId},
-        });
-        if (receiverRes.data?.getUserById) {
-          const {email, username, id, goblinMask} =
-            receiverRes.data.getUserById;
-          const receiverBuild = new User(
-            id,
-            username,
-            '',
-            goblinMask.photo,
-            email,
-          );
-          setReceiver(receiverBuild);
-          console.log('RECEIVER BUILT: ', receiverBuild);
-        }
-
-        const senderRes = await getUserById({
-          variables: {userId: senderId},
-        });
-        if (senderRes.data?.getUserById) {
-          const {email, username, id, goblinMask} = senderRes.data.getUserById;
-          const senderBuild = new User(
-            id,
-            username,
-            '',
-            goblinMask.photo,
-            email,
-          );
-          setSender(senderBuild);
-          console.log('SENDER BUILT: ', senderBuild);
-        }
-      } else {
-        const receiverRes = (await getUserByIdRealm(receiverId)) as User;
-        setReceiver(receiverRes);
-
-        const senderRes = (await getUserByIdRealm(senderId)) as User;
-        setSender(senderRes);
-      }
-    };
-
-    init();
-  }, [senderId, receiverId, getUserById, netInfo.isConnected]);
+  }, [sender.id, receiver.id]);
 
   useEffect(() => {
     const init = async () => {
       if (netInfo.isConnected) {
         if (!loading) {
-          console.log('online');
-          console.log(data);
-
           if (data?.getAllMessagesByUsers) {
-            console.log('DATA FROM SERVER: ', data.getAllMessagesByUsers);
             const builtMessages = data.getAllMessagesByUsers.map(
               m =>
                 new Message(
@@ -164,8 +96,8 @@ export const Chat: React.FC<ChatProps> = () => {
 
             // * check for offline send message
             const offlineFriendshipList = await getAllMessagesByUsersRealm(
-              senderId,
-              receiverId,
+              sender.id,
+              receiver.id,
             );
 
             // console.log('OFFLINE', offlineFriendshipList);
@@ -192,12 +124,6 @@ export const Chat: React.FC<ChatProps> = () => {
                     receiverId: rId,
                     senderId: sId,
                   },
-                  // refetchQueries: [
-                  //   {
-                  //     query: GetAllMessagesByUsersDocument,
-                  //     variables: {userId1: senderId, userId2: receiverId},
-                  //   },
-                  // ],
                 }),
               );
             });
@@ -224,7 +150,7 @@ export const Chat: React.FC<ChatProps> = () => {
               isSameMessageAndContext,
             );
 
-            console.log('OFFFUPDATES: ', offUpdates);
+            // console.log('OFFFUPDATES: ', offUpdates);
 
             offUpdates.forEach((u: Message) => {
               offUpdates.push(
@@ -252,15 +178,15 @@ export const Chat: React.FC<ChatProps> = () => {
           }
         }
       } else {
-        console.log('offline');
+        // console.log('offline');
 
         const currentMessages = (await getAllMessagesByUsersRealm(
-          senderId,
-          receiverId,
+          sender.id,
+          receiver.id,
         )) as Message[];
         setMessagesState(currentMessages);
 
-        console.log(currentMessages);
+        // console.log(currentMessages);
       }
     };
 
@@ -268,8 +194,8 @@ export const Chat: React.FC<ChatProps> = () => {
   }, [
     loading,
     netInfo.isConnected,
-    receiverId,
-    senderId,
+    receiver.id,
+    sender.id,
     deleteMessageServ,
     sendMessageServ,
     updateMessage,
@@ -277,13 +203,6 @@ export const Chat: React.FC<ChatProps> = () => {
     data,
   ]);
 
-  // const isSameMessage = (a: any, b: any) => {
-  //   if (a?.uuid) {
-  //     return a.uuid === b.id;
-  //   } else {
-  //     return a.id === b.uuid;
-  //   }
-  // };
   const isSameMessage = (a: Message, b: Message) => a.id === b.id;
   const isSameMessageAndContext = (a: Message, b: Message) =>
     a.id === b.id && a.message === b.message;
@@ -393,7 +312,7 @@ export const Chat: React.FC<ChatProps> = () => {
   };
 
   const sendMessage = async () => {
-    const newMessage = new Message(uuidv4(), senderId, receiverId, input);
+    const newMessage = new Message(uuidv4(), sender.id, receiver.id, input);
 
     await insertMessage(newMessage);
     // currentMessages.concat(newMessage);
@@ -402,13 +321,12 @@ export const Chat: React.FC<ChatProps> = () => {
     // Keyboard.dismiss();
     if (netInfo.isConnected) {
       const newMessageRaw = await sendMessageServ({
-        variables: {uuid: newMessage.id, senderId, receiverId, message: input},
-        // refetchQueries: [
-        //   {
-        //     query: GetAllMessagesByUsersDocument,
-        //     variables: {userId1: senderId, userId2: receiverId},
-        //   },
-        // ],
+        variables: {
+          uuid: newMessage.id,
+          senderId: sender.id,
+          receiverId: receiver.id,
+          message: input,
+        },
       });
 
       refetchMessages();
@@ -437,18 +355,22 @@ export const Chat: React.FC<ChatProps> = () => {
       {receiver && <HeaderComponent user={receiver} />}
 
       <View style={styles.chatContainer}>
-        {sender && receiver ? (
-          <SafeAreaView style={styles.mesaggesContainer}>
+        <SafeAreaView style={styles.mesaggesContainer}>
+          {!loading ? (
             <FlatList
               data={messagesState}
               renderItem={renderMessage}
               keyExtractor={item => item.id}
               keyboardShouldPersistTaps="handled"
             />
-          </SafeAreaView>
-        ) : (
-          <Text>Loading...</Text>
-        )}
+          ) : (
+            <ActivityIndicator
+              style={styles.loading}
+              size={60}
+              color="tomato"
+            />
+          )}
+        </SafeAreaView>
         <View style={styles.footer}>
           <TextInput
             //   style={styles.input}
@@ -476,6 +398,15 @@ const styles = StyleSheet.create({
     flex: 3,
     padding: 15,
     backgroundColor: '#000a17',
+  },
+  loading: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   footer: {
     marginTop: 15,

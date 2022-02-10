@@ -7,8 +7,8 @@ export type RootStackParamList = {
     user: User;
   };
   Chat: {
-    senderId: number;
-    receiverId: number;
+    sender: User;
+    receiver: User;
   };
   EditProfile: {
     user: User;

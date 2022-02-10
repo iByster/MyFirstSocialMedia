@@ -22,7 +22,7 @@ interface UserListItemProps {
   friend: FriendShip;
   currentUser: User;
   deleteUser(userId: number): void;
-  goToChat(receiverId: number): void;
+  goToChat(receiver: User): void;
   handleFriendship(friend: FriendShip, status: UserCardType): void;
 }
 
@@ -53,11 +53,8 @@ export const UserListItem: React.FC<UserListItemProps> = ({
   useEffect(() => {
     // TODO CEVA NU MERGE
     const init = async () => {
-      console.log(friend);
-      console.log(currentUser);
       const isCurrentUserSender = currentUser.id === friend.senderId;
       const isRequest = friend.status === 'pending';
-      console.log(isRequest);
       let userFoundRealm = null;
       let userFoundServer = null;
 
@@ -111,7 +108,6 @@ export const UserListItem: React.FC<UserListItemProps> = ({
       }
 
       if (userFoundServer) {
-        console.log('USER FOUND: ', userFoundServer.data?.getUserById);
 
         if (userFoundServer.data?.getUserById) {
           const {id, username, email, goblinMask} =
@@ -139,7 +135,7 @@ export const UserListItem: React.FC<UserListItemProps> = ({
 
   const redirectToChat = () => {
     if (user) {
-      goToChat(user.id);
+      goToChat(user);
     }
   };
 

@@ -58,6 +58,24 @@ export const getAllFriendShipsByUser = (
       .catch(error => reject(error));
   });
 
+export const getAllUsersDTOs = (): Promise<User[]> =>
+  new Promise((resolve, reject) => {
+    Realm.open(databaseOptions)
+      .then(realm => {
+        realm.write(() => {
+          let friendshipFound = realm.objects(USER_SCHEMA);
+          // .filtered('senderId == $0 OR receiverId == $0', userId);
+          if (friendshipFound) {
+            resolve(JSON.parse(JSON.stringify(friendshipFound)));
+          } else {
+            resolve(friendshipFound);
+          }
+        });
+        //realm.close();
+      })
+      .catch(error => reject(error));
+  });
+
 export const getAllMessagesByUsers = (
   senderId: number,
   receiverId: number,
@@ -299,7 +317,6 @@ export const updateUser = (
             USER_SCHEMA,
             updatedUser.id,
           ) as User;
-          console.log(userFound);
           if (userFound) {
             userFound.username = username;
             userFound.profilePic = profilePic;

@@ -47,7 +47,7 @@ export const MessageComponent: React.FC<MessageProps> = ({
   //   init();
   // }, [message, data, netInfo, loading]);
 
-  console.log(message);
+  // console.log(message);
 
   const renderMessage = () => {
     if (isSender) {

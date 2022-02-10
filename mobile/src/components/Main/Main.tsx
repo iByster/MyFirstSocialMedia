@@ -7,6 +7,7 @@ import {Button, Text} from 'react-native-elements';
 import {
   deleteFriendship as deleteFriendshipRealm,
   getAllFriendShipsByUser as getAllFriendShipsByUserRealm,
+  getAllUsersDTOs,
   getUserById as getUserByIdRealm,
   insertFriendShip,
   insertUser,
@@ -32,13 +33,14 @@ interface MainProps {}
 
 type mainScreenProp = StackNavigationProp<RootStackParamList, 'Main'>;
 
+// TODO se fac mai multe fetch-uri decat trebuie
 export const Main: React.FC<MainProps> = () => {
   const navigation = useNavigation<mainScreenProp>();
   const [input, setInput] = useState('');
   const route = useRoute<RouteProp<RootStackParamList, 'Main'>>();
   const [addFriend] = useAddFriendMutation();
   const currentUser = route.params.user;
-  const {error, loading, data} = useGetAllFriendshipsByUserQuery({
+  const {loading, data} = useGetAllFriendshipsByUserQuery({
     variables: {userId: currentUser.id},
   });
   const [deleteFriendship] = useDeleteFriendShipMutation();
@@ -63,6 +65,8 @@ export const Main: React.FC<MainProps> = () => {
   useEffect(() => {
     const init = async () => {
       const friendShips = await getAllFriendShipsByUserRealm(currentUser.id);
+      console.log(friendShips);
+      console.log(await getAllUsersDTOs());
       setFriendRequestList(friendShips);
     };
 
@@ -83,7 +87,7 @@ export const Main: React.FC<MainProps> = () => {
                   d.status as StatusType,
                 ),
             );
-            console.log('whaaat', friendships);
+            // console.log('whaaat', friendships);
 
             // * check for offline deletes
             const offlineFriendshipList = await getAllFriendShipsByUserRealm(
@@ -119,8 +123,8 @@ export const Main: React.FC<MainProps> = () => {
               setFriendRequestList(friendships);
             }
 
-            console.log('OOOOFLINEEEE: ', offlineFriendshipList);
-            console.log('UPDATED DIFFERENCE: ', updateDifference);
+            // console.log('OOOOFLINEEEE: ', offlineFriendshipList);
+            // console.log('UPDATED DIFFERENCE: ', updateDifference);
 
             updateDifference.forEach(async (d: FriendShip) => {
               await updateFriendShipStatus({
@@ -129,7 +133,7 @@ export const Main: React.FC<MainProps> = () => {
             });
           }
         } else {
-          console.log('HEEERE');
+          // console.log('HEEERE');
           const friendShips = await getAllFriendShipsByUserRealm(
             currentUser.id,
           );
@@ -192,8 +196,9 @@ export const Main: React.FC<MainProps> = () => {
         if (userRaw.data?.getUserById) {
           const {email, id, username, goblinMask} = userRaw.data.getUserById;
           const checkUserIfExist = await getUserByIdRealm(id);
-          if (!checkUserIfExist) {
+          if (!checkUserIfExist?.id) {
             const userDTO = new User(id, username, '', goblinMask.photo, email);
+            console.log('user saved: ', userDTO);
             await insertUser(userDTO);
           }
         }
@@ -207,8 +212,6 @@ export const Main: React.FC<MainProps> = () => {
     }
   };
 
-  // TODO same thing, check for internet connection
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   const handleFriendship = async (friend: FriendShip, status: UserCardType) => {
     const updatedFriendship = (await updateFriendShipStatusRealm(
       friend,
@@ -263,11 +266,7 @@ export const Main: React.FC<MainProps> = () => {
           setFriendRequestList(
             friendRequestList.filter(friend => friend.id !== userId),
           );
-          // TODO check internet connection
-          // ? can delete if no internet connection from local_db
-          // ? when internet connection is back check the local_db list
-          // ? with server list then update on server
-          // ! maybe
+
           if (netInfo.isConnected) {
             const res = await deleteFriendship({
               variables: {friendshipId: userId},
@@ -294,10 +293,10 @@ export const Main: React.FC<MainProps> = () => {
     ]);
   };
 
-  const goToChat = (receiverId: number) => {
+  const goToChat = (receiver: User) => {
     navigation.navigate('Chat', {
-      senderId: currentUser.id,
-      receiverId,
+      sender: currentUser,
+      receiver,
     });
   };
 
